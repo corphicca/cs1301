@@ -1,0 +1,168 @@
+
+/*Your Full Name
+ [CS1101] Comprehensive Lab 2
+ This work is to be done individually. It is not permitted to.
+ share, reproduce, or alter any part of this assignment for any
+ purpose. Students are not permitted from sharing code, uploading
+ this assignment online in any form, or viewing/receiving/
+ modifying code written from anyone else. This assignment is part.
+ of an academic course at The University of Texas at El Paso and
+ a grade will be assigned for the work produced individually by
+ the student.
+*/
+
+import java.util.Scanner;
+import java.util.Random;
+
+public class CL2_Nahuat {
+    public static void main(String[] args) {
+    
+        //array of int type named board is set to method setupBoard()
+        int[] board = setupBoard();
+
+        //System.out.println(' '); 
+        //sets number of attempts displayed on menu based on size of user input 
+        int attempts = (board.length / 2) + 2; 
+        //calling method that displays menu and ask user for limited/ unlimited attempts or exit 
+        displayMainMenu(attempts);
+        displayBoard(board); 
+
+    }
+
+    /**
+     * This method will ask the user for the size of the board, check that the size
+     * is even and greater than 2, request the method "place pairs" to randomly place pairs of number
+     * @return An integer array representing a 1D board
+     */
+    private static int[] setupBoard() {
+    Scanner keyboardScanner = new Scanner(System.in);
+
+        System.out.println("Pick an even number for the size of the board");
+        int size = keyboardScanner.nextInt();
+        
+        //while size is not a even number OR size is less than or equal to 2, prompt user to enter another number 
+        while (size % 2 != 0 || size <= 2){ 
+            System.out.println("Error, please enter an even number greater than 2 for the size of the board");
+            size = keyboardScanner.nextInt(); 
+            
+            //continue tesing if size is not an even number or if size is less than or equal to 2, if so promopt user to enter another number 
+            if (size % 2 != 0 || size <= 2){
+                System.out.println("Error, please enter an even number greater than 2 for the size of the board");
+                size = keyboardScanner.nextInt();  
+            } 
+        }
+
+        //int type array named board, size is based on user input 
+        int[] board = new int[size]; 
+
+        //array made in method placePairs sets random numbers to array board in the amount of size given by user input 
+        placePairs(board); 
+
+        //return array named board, board has radomized pairs of numbers in the amount size which is user input 
+        return board;
+    }
+
+    /**
+     * This method will randomly place pairs of numbers. It is guaranteed that the pairs of numbers will be greater than zero
+     * DO NOT MODIFY
+     * @param board
+     */
+    private static void placePairs(int[] board) {
+    Random rand = new Random();
+
+        // place the values in the array in order
+        for (int i = 0; i < board.length; i++)
+            board[i] = i / 2 + 1;
+
+        // perfect array shuffle
+        // swap the ith value with a random value from index i to end of array
+        for (int i = 0; i < board.length - 1; i++) {
+            int j = rand.nextInt(board.length - i);
+            int temp = board[i];
+            board[i] = board[j];
+            board[j] = temp;
+        }   
+    } 
+
+    /**
+     * 
+     * This method will display the board. Question marks are pairs to be found
+     *   0   1   2   3   4   5
+     * _________________________
+     * | 2 | 3 | ? | 2 | 3 | ? |
+     * 
+     * @param board The board to be shown. Question marks are pairs to be found
+     * @return nothing
+     */
+    private static void displayBoard(int[] board) {
+         //prints out the indices of the array 
+         int j = 0; 
+         int index = -1; 
+         while (j < board.length ){
+            if (board[j] >= 0){
+                index = j;
+                System.out.print(index);
+                System.out.print(' ');
+                System.out.print(' ');
+            }
+            j++;
+         }
+         //prints out certain lengths of boarder based on size of the board 
+         System.out.println(' ');
+         if (board.length == 10){
+            System.out.println("------------------------------");
+         } else if (board.length == 8) {
+            System.out.println("----------------------");
+         } else if (board.length == 6){
+            System.out.println("----------------");
+         }else if (board.length == 4){
+            System.out.println("----------");
+         }else {
+            System.out.println("--------------------------------------------------");
+         }
+
+        //temporary prints out the randomized pairs in array board 
+         for(int i = 0; i < board.length; i++){
+            System.out.print(board[i]);
+            System.out.print(' ');
+            System.out.print(' ');
+        }
+
+
+        
+    }    
+
+    /**
+     * This method will display the main menu
+     * @param attempts
+     */
+    private static void displayMainMenu(int attempts) {
+    Scanner keyboardScanner = new Scanner(System.in);
+
+        System.out.println("Do you wish to play for: ");
+        System.out.println("1. " + attempts + " attempts");
+        System.out.println("2. Unlimited number of attempts");
+        System.out.println("3. Exit");
+        int userIn = keyboardScanner.nextInt();
+
+        while (userIn < 1 || userIn > 3){
+            //reprompt
+            System.out.println("Invalid input, try again");
+            userIn = keyboardScanner.nextInt();
+        } if (userIn == 1){
+            System.out.println("Number of attempts left: " + attempts);
+
+        } if ( userIn == 2){
+            attempts = -1; 
+            System.out.println("You hava unlimited attempts to play the game " + attempts);
+
+        } if (userIn == 3){
+            attempts = 0;
+            System.out.println("....exiting game"); 
+        }
+    }
+}
+
+
+
+
