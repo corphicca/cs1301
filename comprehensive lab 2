@@ -1,6 +1,6 @@
 
-
-/*Cidayin Nahuat
+/*
+Cidayin Nahuat
  [CS1101] Comprehensive Lab 2
  This work is to be done individually. It is not permitted to.
  share, reproduce, or alter any part of this assignment for any
@@ -14,21 +14,58 @@
 import java.util.Scanner;
 import java.util.Random;
 
-public class CL2_Nahuat {
-    public static void main(String[] args) {
+public class CL2_part2 {
     
-        //array of int type named board is set to method setupBoard()
-        int[] board = setupBoard();
- 
-        //sets number of attempts displayed on menu based on size of user input 
-        int attempts = (board.length / 2) + 2; 
-        //calling method that displays menu and ask user for limited/ unlimited attempts or exit 
-        displayMainMenu(attempts);
-        displayBoard(board); 
+    public static void main(String[] args) {
 
+        //creating array named key that has the randomized pairs user will try to figure out which is initialized in method setupBoard 
+       int[] key = setupBoard(); 
+       //creating playingBoard that displays question marks or values that user guesses for guess 1 and guess2 or 
+       int[] playingBoard = new int [key.length]; 
+
+       for(int i = 0; i < playingBoard.length; i++) 
+        playingBoard[i] = -1;
+
+       //sets number of attempts displayed on menu based on size of user input 
+       int attempts = (key.length / 2) + 2; 
+       //calling method that displays menu and ask user for limited/ unlimited attempts or exit 
+       displayMainMenu(attempts);
+
+       Scanner keyboardScanner = new Scanner(System.in); 
+       int userIn = keyboardScanner.nextInt();
+       
+       while (userIn < 1 || userIn > 3){
+        //reprompt
+        System.out.println("Invalid input, try again");
+        userIn = keyboardScanner.nextInt();
+    }
+     if ( userIn == 2){
+         attempts = -1;
+
+    } if (userIn == 3){
+         attempts = 0;
+         System.out.println("....exiting game"); 
     }
 
-    /**
+       
+       int gameState = 0;
+
+        while(attempts != 0){
+            if(attempts > 0) System.out.println("You have " + attempts + " attempts remaining");
+            else System.out.println("You have unlimited attempts remaining");
+
+            gameState = runGame(playingBoard, key);
+            if(gameState == 3){
+                System.out.println("Congratulations, you have won the game");
+                attempts = 1;
+            } 
+            attempts--;
+            if(attempts == 0 && gameState == 0)
+             System.out.print("Game Over");
+        }
+        
+    }
+     /**
      * This method will request the user to select two cells in the board to
      * discover the numbers in them
      * 
@@ -37,62 +74,80 @@ public class CL2_Nahuat {
      * @return 3 if all the pairs have been found, 0 otherwise
      */
     private static int runGame(int[] playingBoard, int[] board) {
-        Scanner keyboardScanner = new Scanner(System.in);
+        int cell1, cell2; 
+        Scanner keyboardScanner = new Scanner (System.in);
 
-        System.out.println("Enter cell nummber: "); 
-        int guess1 = keyboardScanner.nextInt(); 
+        displayBoard(playingBoard);
+        do {
+            System.out.println("Enter cell number: ");
+            cell1 = keyboardScanner.nextInt(); 
+            System.out.println(); 
+        } while (!isWithinBounds(playingBoard.length, cell1) || isCellSelected(playingBoard, cell1));
+        System.out.println("You have discovered: " + board[cell1] + "\nwhere is the matching pair? ");
+        
+        clearCell(playingBoard, cell1, board[cell1]); 
+        displayBoard(playingBoard); 
+
+        do {
+            System.out.println("Enter cell number: "); 
+            cell2 = keyboardScanner.nextInt(); 
+            System.out.println();
+        } while (!isWithinBounds(playingBoard.length, cell2) || isCellSelected(playingBoard, cell2) || cell2 == cell1); 
+
+        clearCell(playingBoard, cell2, board[cell2]); 
+        displayBoard(playingBoard); 
+
+        if (board[cell1] == board[cell2]){
+            System.out.println("You have found a pair");
+        } else {
+            System.out.println("You uncovered: " + board[cell2]); 
+            clearCell(playingBoard, cell1, -1); 
+            clearCell(playingBoard, cell2, -1); 
+        }
+
+        if (isBoardCleared(playingBoard)){
+            
+            return 3;
+        }
+        return 0; 
+    }
+
+    /**
+     * Checks if a selected cell is within the bounds of the board
+     * 
+     * @param boardLength
+     * @param cell
+     * @return true if the index of the cell is within the bounds of the board
+     */
+    private static boolean isWithinBounds(int boardLength, int cell) {
+        return cell >= 0 && cell < boardLength;
         
     }
 
-    
-    // /**
-    //  * Checks if a selected cell is within the bounds of the board
-    //  * 
-    //  * @param boardLength
-    //  * @param cell
-    //  * @return true if the index of the cell is within the bounds of the board
-    //  */
-    //  private static boolean isWithinBounds(int boardLength, int cell) {
-        
-    //     boolean withinBounds = false; 
-
-    //     if (cell >= 0 && cell < boardLength){
-    //         withinBounds = true; 
-    //     }
-    //     return withinBounds; 
-    //  }
-
     /**
      * This method will ask the user for the size of the board, check that the size
-     * is even and greater than 2, request the method "place pairs" to randomly place pairs of number
+     * is even and request the method "place pairs" to randomly place pairs of numbers
+     * 
      * @return An integer array representing a 1D board
      */
     private static int[] setupBoard() {
-    Scanner keyboardScanner = new Scanner(System.in);
+        Scanner keyboardScanner = new Scanner(System.in); 
 
+        System.out.println("Welcome to the number matching game where you have to pick two cells in hopes of matching it with its pair!");
         System.out.println("Pick an even number for the size of the board");
         int size = keyboardScanner.nextInt();
-        
+
+        //int type array named board 
+        int[] key = new int [1];  
+
         //while size is not a even number OR size is less than or equal to 2, prompt user to enter another number 
-        while (size % 2 != 0 || size <= 2){ 
+        while(size % 2 != 0 || size <= 2){ 
             System.out.println("Error, please enter an even number greater than 2 for the size of the board");
             size = keyboardScanner.nextInt(); 
-            
-            //continue tesing if size is not an even number or if size is less than or equal to 2, if so promopt user to enter another number 
-            if (size % 2 != 0 || size <= 2){
-                System.out.println("Error, please enter an even number greater than 2 for the size of the board");
-                size = keyboardScanner.nextInt();  
-            } 
-        }
-
-        //int type array named board, size is based on user input 
-        int[] board = new int[size]; 
-
-        //array made in method placePairs sets random numbers to array board in the amount of size given by user input 
-        placePairs(board); 
-
-        //return array named board, board has radomized pairs of numbers in the amount size of user input 
-        return board;
+            }
+                key = new int[size];  
+                placePairs(key); 
+                return key;
     }
 
     /**
@@ -100,30 +155,13 @@ public class CL2_Nahuat {
      * @param attempts
      */
     private static void displayMainMenu(int attempts) {
-        Scanner keyboardScanner = new Scanner(System.in);
-    
-            System.out.println("Do you wish to play for: ");
-            System.out.println("1. " + attempts + " attempts");
-            System.out.println("2. Unlimited number of attempts");
-            System.out.println("3. Exit");
-            int userIn = keyboardScanner.nextInt();
-    
-            while (userIn < 1 || userIn > 3){
-                //reprompt
-                System.out.println("Invalid input, try again");
-                userIn = keyboardScanner.nextInt();
-            } if (userIn == 1){
-                System.out.println("Number of attempts left: " + attempts);
-    
-            } if ( userIn == 2){
-                attempts = -1; 
-                System.out.println("You hava unlimited attempts to play the game " + attempts);
-    
-            } if (userIn == 3){
-                attempts = 0;
-                System.out.println("....exiting game"); 
-            }
-        }
+
+        System.out.println("Do you wish to play for: ");
+        System.out.println("1. " + attempts + " attempts");
+        System.out.println("2. Unlimited number of attempts");
+        System.out.println("3. Exit");
+
+    }
 
     /**
      * 
@@ -136,83 +174,72 @@ public class CL2_Nahuat {
      * @return nothing
      */
     private static void displayBoard(int[] board) {
-         //prints out the indices of the array 
-         int j = 0; 
-         int index = -1; 
-         while (j < board.length ){
-            if (board[j] >= 0){
-                index = j;
-                System.out.print(index);
-                System.out.print(' ');
-                System.out.print(' ');
+        //prints out the indices of the array 
+        for(int i = 0; i < board.length; i++){
+            System.out.print(i);
+            System.out.print(' ');
+            System.out.print(' ');
+        }
+
+        //prints out certain lengths of boarder based on size of the board 
+        System.out.println(' ');
+        if (board.length == 10){
+           System.out.println("------------------------------");
+        } else if (board.length == 8) {
+           System.out.println("----------------------");
+        } else if (board.length == 6){
+           System.out.println("----------------");
+        }else if (board.length == 4){
+           System.out.println("----------");
+        }else {
+           System.out.println("--------------------------------------------------");
+        }
+
+        //prints out new playingBoard that displays question marks 
+        for (int i = 0; i < board.length; i++){
+            if(board[i] == -1) System.out.print('?');
+            else System.out.print(board[i]);
+            System.out.print(' ');
+            System.out.print(' ');
+        }
+        System.out.println();
+    }
+
+    /**
+     * This method will return true if the cell to be selected has already been
+     * cleared
+     * @param board
+     * @param cell
+     * @return
+     */
+    private static boolean isCellSelected(int[] board, int cell) { 
+        return board[cell] != -1;
+    }
+
+    /**
+     * This method will set a value into a specific cell
+     * @param board
+     * @param cell
+     * @param value
+     */
+    private static void clearCell(int[] board, int cell, int value) {
+        board[cell] = value; 
+    }
+
+    /**
+     * This method will return true if the board has been cleared thus the end
+     * of the game. False otherwise.
+     * @param board
+     * @return
+     */
+    private static boolean isBoardCleared(int[] board) {
+        for(int i = 0; i < board.length; i++){
+            if(board[i] == -1){
+                return false; 
             }
-            j++;
-         }
-
-         //prints out certain lengths of boarder based on size of the board 
-         System.out.println(' ');
-         if (board.length == 10){
-            System.out.println("------------------------------");
-         } else if (board.length == 8) {
-            System.out.println("----------------------");
-         } else if (board.length == 6){
-            System.out.println("----------------");
-         }else if (board.length == 4){
-            System.out.println("----------");
-         }else {
-            System.out.println("--------------------------------------------------");
-         }
-
-         //prints out new currentArray that displays question marks 
-         String [] currentArray = new String [board.length]; 
-         for (int i = 0; i < currentArray.length; i++){
-             currentArray[i] = "?";
-             System.out.print(currentArray[i]); 
-             System.out.print(' ');
-             System.out.print(' ');
-         }
-
-         runGame(currentArray, board);
-         
-         /*temporary: prints out the randomized pairs in array board 
-          for(int i = 0; i < board.length; i++){
-             System.out.print(board[i]);
-             System.out.print(' ');
-             System.out.print(' ');
-         }
-         */ 
-    }    
-    
-    // /**
-    //  * This method will return true if the cell to be selected has already been
-    //  * cleared
-    //  * @param board
-    //  * @param cell
-    //  * @return
-    //  */
-    // private static boolean isCellSelected(int[] board, int cell) {
-        
-    // }
-
-    //  /**
-    //  * This method will set a value into a specific cell
-    //  * @param board
-    //  * @param cell
-    //  * @param value
-    //  */
-    // private static void clearCell(int[] board, int cell, int value) {
-        
-    // }
-
-    //  /**
-    //  * This method will return true if the board has been cleared thus the end
-    //  * of the game. False otherwise.
-    //  * @param board
-    //  * @return
-    //  */
-    // private static boolean isBoardCleared(int[] board) {
-        
-    // }
+        } 
+        return true; 
+    }
 
     /**
      * This method will randomly place pairs of numbers. It is guaranteed that the pairs of numbers will be greater than zero
@@ -220,22 +247,21 @@ public class CL2_Nahuat {
      * @param board
      */
     private static void placePairs(int[] board) {
+
         Random rand = new Random();
-    
-            // place the values in the array in order
-            for (int i = 0; i < board.length; i++)
-                board[i] = i / 2 + 1;
-    
-            // perfect array shuffle
-            // swap the ith value with a random value from index i to end of array
-            for (int i = 0; i < board.length - 1; i++) {
-                int j = rand.nextInt(board.length - i);
-                int temp = board[i];
-                board[i] = board[j];
-                board[j] = temp;
-            }   
-        } 
+
+        // place the values in the array in order
+
+        for (int i = 0; i < board.length; i++)
+            board[i] = i / 2 + 1;
+        // perfect array shuffle
+        // swap the ith value with a random value from index i to end of array
+        for (int i = 0; i < board.length - 1; i++) {
+            int j = rand.nextInt(board.length - i);
+            int temp = board[i];
+            board[i] = board[j];
+            board[j] = temp;
+        }
+
+    }
 }
-
-
-
